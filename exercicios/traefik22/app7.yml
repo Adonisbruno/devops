@@ -3,26 +3,26 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: whoami5
-  # namespace: whoami5
+  name: whoami7
+  namespace: staging
   labels:
     allow.http: "false"
-    application: whoami5
+    application: whoami7
 spec:
   replicas: 3
   selector:
     matchLabels:
-      application: whoami5
+      application: whoami7
   template:
     metadata:
       labels:
-        application: whoami5
+        application: whoami7
     spec:
       containers:
-      - name: whoami5
+      - name: whoami7
         image: jwilder/whoami
         ports:
-        - containerPort: 8000
+        - containerPort: 7000
         securityContext:
           privileged: true
 
@@ -31,32 +31,39 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: whoami5
-  # namespace: whoami5
+  name: whoami7
+  annotations: 
+    traefik.ingress.kubernetes.io/service.sticky: "true"
+  namespace: staging
 spec:
   type: ClusterIP
   ports:
   - port: 80 # Porta a ser exposta pelo SERVICE
     targetPort: 8000 # Porta que a aplicação está rodando no POD
   selector:
-    application: whoami5
-
+    application: whoami7
 
 ---
 kind: Ingress
 apiVersion: extensions/v1beta1
 metadata:
-  name: whoami5
+  name: whoami7
+  namespace: staging
   annotations:
     kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/router.tls.certresolver: default
 spec:
+  tls:
+    - hosts:
+        - app7.staging.sti.ufpb.br
+      secretName: staging-tls-secret
   rules:
-    - host: app.staging.sti.ufpb.br
+    - host: app7.staging.sti.ufpb.br
       http:
         paths:
           - backend:
-              serviceName: whoami5
+              serviceName: whoami7
               servicePort: 80
 
