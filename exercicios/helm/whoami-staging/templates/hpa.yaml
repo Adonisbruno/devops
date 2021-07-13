@@ -2,14 +2,12 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "whoami-staging.fullname" . }}
-  labels:
-    {{- include "whoami-staging.labels" . | nindent 4 }}
+  name: {{ .Chart.Name }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "whoami-staging.fullname" . }}
+    name: {{ .Chart.Name }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
