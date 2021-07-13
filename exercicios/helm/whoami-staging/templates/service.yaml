@@ -5,8 +5,6 @@ metadata:
   annotations: 
     traefik.ingress.kubernetes.io/service.sticky: "true"
   namespace: {{ .Values.namespace }}
-  labels:
-    {{- include "whoami-staging.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
