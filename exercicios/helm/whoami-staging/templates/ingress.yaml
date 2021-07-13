@@ -1,0 +1,61 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Values.middleware.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+    port: "443"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingress.nameHttps }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+    - hosts: 
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.secretName }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path:  {{ .Values.ingress.path }}
+            pathType:  {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ .Chart.Name }}
+                port:
+                  number: {{ .Values.ingress.port }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.ingress.nameHttp }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.middlewares: staging-redirect-to-https@kubernetescrd
+spec:
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path:  {{ .Values.ingress.path }}
+            pathType:  {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ .Chart.Name }}
+                port:
+                  number: {{ .Values.ingress.port }}

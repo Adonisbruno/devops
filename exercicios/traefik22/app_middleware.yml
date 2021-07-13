@@ -73,13 +73,14 @@ spec:
     - host: app-middleware.staging.sti.ufpb.br
       http:
         paths:
-          - backend:
+          - path: /
+            pathType: Prefix
+            backend:
               service:
                 name: whoami-middleware
                 port:
                   number: 80
-            path: /
-            pathType: Prefix
+            
 
 ---
 kind: Ingress

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}
+  annotations: 
+    traefik.ingress.kubernetes.io/service.sticky: "true"
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "whoami-staging.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+  selector:
+    application: {{ .Chart.Name }}
